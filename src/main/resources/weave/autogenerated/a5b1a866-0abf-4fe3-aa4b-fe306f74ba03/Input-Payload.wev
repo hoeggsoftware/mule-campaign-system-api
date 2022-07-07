@@ -1,0 +1,21 @@
+%dw 2.0
+
+type auto_a5b1a866_0abf_4fe3_aa4b_fe306f74ba03_Input_Payload = {
+  constitution: Number, 
+  strength: Number, 
+  level: Number, 
+  class_id: Number, 
+  race_id: Number, 
+  current_health: Number, 
+  charisma: Number, 
+  alignment_id: Number, 
+  wisdom: Number, 
+  intelligence: Number, 
+  dexterity: Number, 
+  max_health: Number, 
+  armor_class: Number, 
+  name: String, 
+  id?: Number, 
+  _?: Any
+}
+

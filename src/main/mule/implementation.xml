@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="getClasses" doc:id="f8832bb9-1528-4fc8-bf00-0f9577525786" >
+		<db:select doc:name="All Classes" doc:id="0cf56c01-4647-454f-97ed-4df8d7d2ecff" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT name FROM classes]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="b3453d5a-3ed8-457b-a131-8fbe5a36e070" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(value) -> value.name]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="28cb5e1d-6b4f-4fda-b5d8-829d78799499" message="#[payload]"/>
+	</flow>
+	<flow name="getEquipment" doc:id="49096165-48e5-4783-8d2c-f1bc79e87f95" >
+		<db:select doc:name="All Equipment" doc:id="534e4fc6-6c15-4bf9-ba97-06933ec4e109" config-ref="Database_Config" >
+			<db:sql ><![CDATA[SELECT * FROM equipment]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="50f0d32b-0aee-4570-8a0c-0942fdaef0cf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f8be6d06-908d-4127-afe8-5160bd3d417a" message="#[payload]" />
+	</flow>
+	<flow name="getRaces" doc:id="679e49ae-d7d2-4d4f-a565-b56ed8382625" >
+		<db:select doc:name="All Races" doc:id="21e5790f-f541-4c90-984a-b7f4bc097527" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT name FROM races]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="8411a7b6-1d7d-41ca-9fe6-0553577e82f0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(value) -> value.name]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="927ea6fe-de29-4017-a08a-abacfb0c260c" message="#[payload]"/>
+	</flow>
+	<flow name="getAlignments" doc:id="5298ce01-3a7c-4d85-b44a-805f448f7950" >
+		<db:select doc:name="All Alignments" doc:id="ec0a202c-9691-4d79-811e-eef67b94754b" config-ref="Database_Config" >
+			<db:sql ><![CDATA[SELECT name FROM alignments]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="9f32c095-acbf-440e-89b9-5d555ea509d5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(value) -> value.name]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="a73109e3-2b9a-44c8-845f-004e4f4333ec" message="#[payload]" />
+	</flow>
+	<flow name="postCharacter" doc:id="a5b1a866-0abf-4fe3-aa4b-fe306f74ba03" >
+		<db:insert doc:name="postCharacter" doc:id="56bf4a76-d812-4da1-9bac-c1e2ee4f4200" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT into characters (
+name,
+class_id,
+race_id,
+level,
+strength,
+dexterity,
+constitution,
+wisdom,
+intelligence,
+charisma,
+current_health,
+max_health,
+alignment_id,
+armor_class)
+VALUES (
+:name,
+:class_id,
+:race_id,
+:level,
+:strength,
+:dexterity,
+:constitution,
+:wisdom,
+:intelligence,
+:charisma,
+:current_health,
+:max_health,
+:alignment_id,
+:armor_class)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{"name": payload.name,
+"class_id": payload.class_id,
+"race_id": payload.race_id,
+"level": payload.level,
+"strength": payload.strength,
+"dexterity": payload.dexterity,
+"constitution": payload.constitution,
+"wisdom": payload.wisdom,
+"intelligence": payload.intelligence,
+"charisma": payload.charisma,
+"current_health": payload.current_health,
+"max_health": payload.max_health,
+"alignment_id": payload.alignment_id,
+"armor_class":payload.armor_class }]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="9c74b5fc-e2a6-4396-b137-a654e783feaa" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Character successfully created"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getCharacterByID" doc:id="1de61f0f-e5bc-4828-b53b-1c35dddfc304" >
+		<db:select doc:name="getCharacterByID" doc:id="13fec646-1d51-4296-bff5-938ae6caffda" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM characters WHERE id = :id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{ "id": attributes.uriParams.id }]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="cf280cd2-2cda-4957-aa73-9b13857ddfee" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="putCharacter" doc:id="10673201-2d44-4303-8c1a-fe16af01408f" >
+		<db:update doc:name="putCharacter" doc:id="5bff4bbc-2826-45d6-b365-22956ab1d375" config-ref="Database_Config">
+			<db:sql ><![CDATA[UPDATE characters SET 
+name = :name,
+class_id = :class_id,
+race_id = :race_id,
+level = :level,
+strength = :strength,
+dexterity = :dexterity,
+constitution = :constitution,
+wisdom = :wisdom,
+intelligence = :intelligence,
+charisma = :charisma,
+current_health = :current_health,
+max_health = :max_health,
+alignment_id = :alignment_id,
+armor_class = :armor_class
+WHERE id = :id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{"name": payload.name,
+"id": attributes.uriParams.id,
+"class_id": payload.class_id,
+"race_id": payload.race_id,
+"level": payload.level,
+"strength": payload.strength,
+"dexterity": payload.dexterity,
+"constitution": payload.constitution,
+"wisdom": payload.wisdom,
+"intelligence": payload.intelligence,
+"charisma": payload.charisma,
+"current_health": payload.current_health,
+"max_health": payload.max_health,
+"alignment_id": payload.alignment_id,
+"armor_class":payload.armor_class }]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Transform Message" doc:id="6343737d-f7c1-4638-949d-f346097f44ed" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Character successfully updated"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="681f4b0a-96d6-4467-bc0b-5c8e4b753298" />
+	</flow>
+	<flow name="getCharacterInventory" doc:id="160519ae-802f-439b-b39b-0ca414dc9e80" >
+		<db:select doc:name="getCharacterInventory" doc:id="3cda49b1-7760-46a8-8771-e2cf30fc7929" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT e.name as equipment, e.description, ce.quantity
+FROM character_equipment ce
+JOIN equipment e ON ce.equipment_id = e.id
+WHERE ce.character_id = :character_id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{ "character_id": attributes.uriParams.id }]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="b97995d9-1f65-46bd-bfcd-e7c56a2c86fd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="postCharacterInventory" doc:id="f2caa72e-f768-4db9-9f98-f390045052b1" >
+		<db:insert doc:name="Post Character Inventory" doc:id="f71d0956-d18e-4e5c-929e-33c9b6974559" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO character_equipment
+VALUES (:character_id, :equipment_id, :quantity)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{"equipment_id": payload.itemID,
+"quantity": payload.quantity,
+"character_id": attributes.uriParams.id
+}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="51ab38bf-1db1-47ee-b778-ab248279305c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Item successfully added"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getCampaigns" doc:id="4a9b6b35-9e03-4750-9068-7889bbcee014" >
+		<db:select doc:name="Get all Campaigns" doc:id="72d0ac09-702a-4a88-9ca1-1eaef68dd654" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM campaigns]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="5e9edaa8-a0b5-4f04-9e0f-61b909dbe7e1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(value) -> value.name]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="postCampaign" doc:id="b02fa3d0-10da-481c-90b0-fa8277dac4df" >
+		<db:insert doc:name="Post Campaign" doc:id="6679e974-a692-4a7c-95f6-e57c846ef620" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO campaigns (name) VALUES (:name)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{"name": payload.name}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="867fab0d-7583-4142-957b-b070cd8af1c9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Campaign successfully created"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getCampaignEvents" doc:id="78ec1cf3-5425-46ec-b152-10fa4b6ccd0d" >
+		<db:select doc:name="Get Campaign Events" doc:id="92474b6c-f50c-40a1-bc96-6551a230d5ae" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM character_event_log WHERE campaign_id = :id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{"id": attributes.uriParams.id}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="701e48b9-00e9-4740-a56d-2e93c0bbedf7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(value) -> {
+	id: value.id,
+	numeric_change: value.numeric_change,
+	value_change: value.value_change,
+	target_id: value.target_id,
+	created_at: value.created_at,
+	character_id: value.character_id,
+	campaign_id: value.campaign_id
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="postCampaignEvent" doc:id="9f30afb5-1c5e-4ae0-814d-9f26425787a6" >
+		<db:insert doc:name="Post Campaign Event" doc:id="ccd10a2a-7001-4a2f-913b-31f06f32e1d1" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO character_event_log 
+(
+numeric_change,
+value_change,
+target_id,
+character_id,
+campaign_id
+) 
+VALUES (
+:numeric_change,
+:value_change,
+:target_id,
+:character_id,
+:campaign_id
+)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+"numeric_change": payload.numeric_change default null,
+"value_change": payload.value_change default null,
+"target_id": payload.target_id,
+"character_id": payload.character_id,
+"campaign_id": attributes.uriParams.id
+}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="7f05ceb0-7887-4070-a387-97430b041cc7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Event successfully added"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

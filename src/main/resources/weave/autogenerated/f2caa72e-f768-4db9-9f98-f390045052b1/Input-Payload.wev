@@ -1,0 +1,8 @@
+%dw 2.0
+
+type auto_f2caa72e_f768_4db9_9f98_f390045052b1_Input_Payload = {
+  itemID: Number, 
+  quantity: Number, 
+  _?: Any
+}
+

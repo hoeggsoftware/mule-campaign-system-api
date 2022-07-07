@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <http:listener-config name="campaign-system-api-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="campaign-system-api-config" api="resource::e9cbd57b-c837-47ec-92be-da9a4aa996dc:campaign-system-api:1.0.10:raml:zip:campaign-system-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="campaign-system-api-main">
+        <http:listener config-ref="campaign-system-api-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="campaign-system-api-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="campaign-system-api-console">
+        <http:listener config-ref="campaign-system-api-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="campaign-system-api-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="get:\info\class:campaign-system-api-config">
+        <flow-ref doc:name="getClasses" doc:id="ae558186-34fe-4b47-b6bb-2235390513fc" name="getClasses" />
+    </flow>
+    <flow name="get:\info\equipment:campaign-system-api-config">
+        <flow-ref doc:name="getEquipment" doc:id="e88fb9d1-e39c-4fc7-b642-76025a3ca1a0" name="getEquipment" />
+    </flow>
+    <flow name="get:\info\race:campaign-system-api-config">
+        <flow-ref doc:name="getRaces" doc:id="6ddd9e60-217c-423c-9559-9e8ba4c46434" name="getRaces" />
+    </flow>
+    <flow name="get:\info\alignment:campaign-system-api-config">
+        <flow-ref doc:name="getAlignments" doc:id="787a6b56-bdd1-4750-a088-05601de2354a" name="getAlignments" />
+    </flow>
+    <flow name="post:\character:application\json:campaign-system-api-config">
+        <flow-ref doc:name="postCharacter" doc:id="c3efb08a-e3a7-4e5e-b886-d8648d5302dc" name="postCharacter" />
+    </flow>
+    <flow name="get:\character\(id):campaign-system-api-config">
+        <flow-ref doc:name="getCharacterByID" doc:id="91c0d14d-a4b8-4b3f-992c-542df39ca48f" name="getCharacterByID" />
+    </flow>
+    <flow name="get:\character\(id)\inventory:campaign-system-api-config">
+        <flow-ref doc:name="getCharacterInventory" doc:id="4d294085-b154-4921-92c1-29ef65970bc7" name="getCharacterInventory" />
+    </flow>
+    <flow name="post:\character\(id)\inventory:application\json:campaign-system-api-config">
+        <flow-ref doc:name="postCharacterInventory" doc:id="4b34a211-eba4-42f0-852f-15d6d96f60d0" name="postCharacterInventory" />
+    </flow>
+    <flow name="get:\campaign:campaign-system-api-config">
+        <flow-ref doc:name="getCampaigns" doc:id="532589fe-c34a-40fd-82f0-5d8c60359934" name="getCampaigns" />
+    </flow>
+    <flow name="post:\campaign:application\json:campaign-system-api-config">
+        <flow-ref doc:name="postCampaign" doc:id="701343c7-6eee-4e3f-9cd5-5ec339eee123" name="postCampaign" />
+    </flow>
+    <flow name="get:\campaign\(id)\events:campaign-system-api-config">
+        <flow-ref doc:name="getCampaignEvents" doc:id="534b7624-cae6-4d3b-a811-6551c58b439e" name="getCampaignEvents" />
+    </flow>
+    <flow name="post:\campaign\(id)\events:application\json:campaign-system-api-config">
+        <flow-ref doc:name="postCampaignEvent" doc:id="958c7078-2cd0-4561-94f9-16f70a4f6067" name="postCampaignEvent" />
+    </flow>
+    <flow name="put:\character\(id):application\json:campaign-system-api-config">
+        <flow-ref doc:name="putCharacter" doc:id="f6df4255-979c-4f7e-bff5-2581e5d71a48" name="putCharacter" />
+    </flow>
+</mule>

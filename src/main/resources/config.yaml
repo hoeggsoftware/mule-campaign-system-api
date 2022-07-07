@@ -1,0 +1,5 @@
+db:
+  user: "brianna"
+  password: "AVNS_ZYz-d3NbXCZhgCHVsEi"
+  url: "jdbc:postgresql://muleetl-db-do-user-1297683-0.b.db.ondigitalocean.com:25060/sandboxdb"
+  driver: "org.postgresql.Driver"
