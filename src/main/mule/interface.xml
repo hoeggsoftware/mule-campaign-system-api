@@ -3,7 +3,7 @@
     <http:listener-config name="campaign-system-api-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="8081" />
     </http:listener-config>
-    <apikit:config name="campaign-system-api-config" api="resource::e9cbd57b-c837-47ec-92be-da9a4aa996dc:campaign-system-api:1.1.0:raml:zip:campaign-system-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <apikit:config name="campaign-system-api-config" api="resource::e9cbd57b-c837-47ec-92be-da9a4aa996dc:campaign-system-api:1.1.1:raml:zip:campaign-system-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <flow name="campaign-system-api-main">
         <http:listener config-ref="campaign-system-api-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -144,9 +144,6 @@ output application/json
     <flow name="get:\character\(id)\inventory:campaign-system-api-config">
         <flow-ref doc:name="getCharacterInventory" doc:id="4d294085-b154-4921-92c1-29ef65970bc7" name="getCharacterInventory" />
     </flow>
-    <flow name="post:\character\(id)\inventory:application\json:campaign-system-api-config">
-        <flow-ref doc:name="postCharacterInventory" doc:id="4b34a211-eba4-42f0-852f-15d6d96f60d0" name="postCharacterInventory" />
-    </flow>
     <flow name="get:\campaign:campaign-system-api-config">
         <flow-ref doc:name="getCampaigns" doc:id="532589fe-c34a-40fd-82f0-5d8c60359934" name="getCampaigns" />
     </flow>
@@ -163,18 +160,21 @@ output application/json
         <flow-ref doc:name="putCharacter" doc:id="f6df4255-979c-4f7e-bff5-2581e5d71a48" name="putCharacter" />
     </flow>
     <flow name="get:\gamemaster\(id)\campaigns:campaign-system-api-config">
-		<flow-ref doc:name="getCampaignByGameMasterID" doc:id="bfb3308d-ae47-417c-8e98-eb5f70276753" name="getCampaignByGameMasterID"/>
+        <flow-ref doc:name="getCampaignByGameMasterID" doc:id="bfb3308d-ae47-417c-8e98-eb5f70276753" name="getCampaignByGameMasterID" />
     </flow>
     <flow name="get:\character:campaign-system-api-config">
-		<flow-ref doc:name="getAllCharacters" doc:id="68bc3f17-fae7-4578-ba59-8de06a375b0b" name="getAllCharacters"/>
+        <flow-ref doc:name="getAllCharacters" doc:id="68bc3f17-fae7-4578-ba59-8de06a375b0b" name="getAllCharacters" />
     </flow>
     <flow name="get:\campaign\(id)\characters:campaign-system-api-config">
-		<flow-ref doc:name="getCharactersByCampaignID" doc:id="81296b25-b4b7-43e6-94cb-aa5e5149f785" name="getCharactersByCampaignID"/>
+        <flow-ref doc:name="getCharactersByCampaignID" doc:id="81296b25-b4b7-43e6-94cb-aa5e5149f785" name="getCharactersByCampaignID" />
     </flow>
     <flow name="get:\gamemaster:campaign-system-api-config">
-		<flow-ref doc:name="getAllGameMasters" doc:id="36e0e7eb-f506-429e-a45e-b035396a1ad0" name="getAllGameMasters"/>
+        <flow-ref doc:name="getAllGameMasters" doc:id="36e0e7eb-f506-429e-a45e-b035396a1ad0" name="getAllGameMasters" />
     </flow>
     <flow name="post:\gamemaster:application\json:campaign-system-api-config">
-		<flow-ref doc:name="postGameMaster" doc:id="bf504bac-061c-4260-ad8a-8dbb7ab81c6e" name="postGameMaster"/>
+        <flow-ref doc:name="postGameMaster" doc:id="bf504bac-061c-4260-ad8a-8dbb7ab81c6e" name="postGameMaster" />
+    </flow>
+    <flow name="post:\character\(id)\inventory\log:application\json:campaign-system-api-config">
+		<flow-ref doc:name="postCharacterInventoryEvent" doc:id="94c39801-645e-4fe9-a1fc-1e68a89ef236" name="postCharacterInventoryEvent"/>
     </flow>
 </mule>

@@ -192,9 +192,9 @@ payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>
-	<flow name="postCharacterInventory" doc:id="f2caa72e-f768-4db9-9f98-f390045052b1" >
-		<db:insert doc:name="Post Character Inventory" doc:id="f71d0956-d18e-4e5c-929e-33c9b6974559" config-ref="Database_Config">
-			<db:sql ><![CDATA[INSERT INTO character_equipment
+	<flow name="postCharacterInventoryEvent" doc:id="f2caa72e-f768-4db9-9f98-f390045052b1" >
+		<db:insert doc:name="Post Character Inventory Event" doc:id="f71d0956-d18e-4e5c-929e-33c9b6974559" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO character_equipment_log
 VALUES (:character_id, :equipment_id, :quantity)]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{"equipment_id": payload.itemID,
 "quantity": payload.quantity,
