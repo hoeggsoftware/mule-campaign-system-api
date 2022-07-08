@@ -7,17 +7,16 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<flow name="getClasses" doc:id="f8832bb9-1528-4fc8-bf00-0f9577525786" >
 		<db:select doc:name="All Classes" doc:id="0cf56c01-4647-454f-97ed-4df8d7d2ecff" config-ref="Database_Config">
-			<db:sql ><![CDATA[SELECT name FROM classes]]></db:sql>
+			<db:sql ><![CDATA[SELECT * FROM classes]]></db:sql>
 		</db:select>
 		<ee:transform doc:name="Transform Message" doc:id="b3453d5a-3ed8-457b-a131-8fbe5a36e070" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-payload map(value) -> value.name]]></ee:set-payload>
+payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="28cb5e1d-6b4f-4fda-b5d8-829d78799499" message="#[payload]"/>
 	</flow>
 	<flow name="getEquipment" doc:id="49096165-48e5-4783-8d2c-f1bc79e87f95" >
 		<db:select doc:name="All Equipment" doc:id="534e4fc6-6c15-4bf9-ba97-06933ec4e109" config-ref="Database_Config" >
@@ -31,35 +30,32 @@ output application/json
 payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="f8be6d06-908d-4127-afe8-5160bd3d417a" message="#[payload]" />
 	</flow>
 	<flow name="getRaces" doc:id="679e49ae-d7d2-4d4f-a565-b56ed8382625" >
 		<db:select doc:name="All Races" doc:id="21e5790f-f541-4c90-984a-b7f4bc097527" config-ref="Database_Config">
-			<db:sql ><![CDATA[SELECT name FROM races]]></db:sql>
+			<db:sql ><![CDATA[SELECT * FROM races]]></db:sql>
 		</db:select>
 		<ee:transform doc:name="Transform Message" doc:id="8411a7b6-1d7d-41ca-9fe6-0553577e82f0" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-payload map(value) -> value.name]]></ee:set-payload>
+payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="927ea6fe-de29-4017-a08a-abacfb0c260c" message="#[payload]"/>
 	</flow>
 	<flow name="getAlignments" doc:id="5298ce01-3a7c-4d85-b44a-805f448f7950" >
 		<db:select doc:name="All Alignments" doc:id="ec0a202c-9691-4d79-811e-eef67b94754b" config-ref="Database_Config" >
-			<db:sql ><![CDATA[SELECT name FROM alignments]]></db:sql>
+			<db:sql ><![CDATA[SELECT * FROM alignments]]></db:sql>
 		</db:select>
 		<ee:transform doc:name="Transform Message" doc:id="9f32c095-acbf-440e-89b9-5d555ea509d5" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-payload map(value) -> value.name]]></ee:set-payload>
+payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="a73109e3-2b9a-44c8-845f-004e4f4333ec" message="#[payload]" />
 	</flow>
 	<flow name="postCharacter" doc:id="a5b1a866-0abf-4fe3-aa4b-fe306f74ba03" >
 		<db:insert doc:name="postCharacter" doc:id="56bf4a76-d812-4da1-9bac-c1e2ee4f4200" config-ref="Database_Config">
@@ -300,6 +296,76 @@ output application/json
 {
   message: "Event successfully added"
 }]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getAllGameMasters" doc:id="4bf52476-8c53-4717-aaf0-45d26004bcc5" >
+		<db:select doc:name="Get All Game Masters" doc:id="aa68cca5-af33-4fe7-8d7f-75581e1906c1" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM game_masters]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="9a4ec642-4efe-432d-887a-a461e57109aa" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="postGameMaster" doc:id="f5257f32-d6a1-4b4f-9283-071ca307256e" >
+		<db:insert doc:name="Post Game Master" doc:id="497aab77-42c7-4b50-88bf-3afe726a8bf5" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO game_masters (name) VALUES (:name)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{"name": payload.name}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="22985e8a-b8f1-4232-ab99-b388bf8753dc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Game master successfully created"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getCampaignByGameMasterID" doc:id="0ad5ebcc-1e48-4136-9000-af80c698729f" >
+		<db:select doc:name="Get Campaigns by Gamemaster ID" doc:id="a93fbb52-e2e5-48a9-b1d9-e023a8012a17" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM campaigns WHERE game_master_id = :id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{"id": attributes.uriParams.id}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="d20fa898-301e-4e0e-8ea5-c38368fcf504" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getCharactersByCampaignID" doc:id="5272c6ac-5390-42b7-b282-661934d33f4c" >
+		<db:select doc:name="Get Characters By Campaign" doc:id="06b0d80f-2b57-46d0-9c2e-40b9a3f2d7ae" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM campaign_characters WHERE campaign_id = :id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{"id": attributes.uriParams.id}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="c871ac1d-ea0e-4dea-ad02-a0479518e994" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getAllCharacters" doc:id="ecdbfd9f-45df-43a2-8167-6bd0ab6a9f21" >
+		<db:select doc:name="Get All Characters" doc:id="01fde7ae-7f65-4a23-8e60-8ea7db7da316" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM characters]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="b4b3076a-af7d-4876-a1af-cb959960daed" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>
