@@ -3,3 +3,14 @@ db:
   password: "AVNS_ZYz-d3NbXCZhgCHVsEi"
   url: "jdbc:postgresql://muleetl-db-do-user-1297683-0.b.db.ondigitalocean.com:25060/sandboxdb"
   driver: "org.postgresql.Driver"
+
+mischief:
+  pPeacefulMoment: "0.1"
+  meanPeaceSeconds: "30"
+  pUnreachableDatabase: "0.015"
+  pSlowQuery: "0.06"
+  meanSlowQuerySeconds: "16"
+  # TODO
+  pDatabasePasswordExpired: "0.0025"
+  meanPasswordResetDelaySeconds: "120"
+  

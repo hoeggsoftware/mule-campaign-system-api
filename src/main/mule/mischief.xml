@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<sub-flow name="slowQuery" doc:id="27e67c6c-6d8e-41ef-acf7-c55cf3807be8" >
+		<try doc:name="Try" doc:id="a4b3cfeb-bbe4-474e-b551-6af7d86fd35c" >
+			<validation:is-number doc:name="slowQuery" doc:id="f90165b7-2373-48c5-a139-bf6f9c4b91bc" value="#[random()]" minValue='#[p("mischief.pSlowQuery") as Number]' numberType="FLOAT">
+			<error-mapping sourceType="VALIDATION:INVALID_NUMBER" targetType="MISCHIEF:SLOW_QUERY" />
+		</validation:is-number>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="false" doc:name="On Error Continue" doc:id="7336136d-07d2-4029-8c51-c587b74cf9f1" type="MISCHIEF:SLOW_QUERY">
+					<set-variable value='#[import * from dw::Mischief&#10;---&#10;randomDurationWithMean(p("mischief.meanSlowQuerySeconds") as Number)]' doc:name="slowQueryDuration" doc:id="d8de5338-2f30-4dc1-929a-07aea93c1816" variableName="slowQueryDuration"/>
+					<logger level="DEBUG" doc:name="DEBUG" doc:id="fb414bea-a18d-4d6e-ba92-54366f81b1ce" message="Slow query started (simulated #[vars.slowQueryDuration]s)" category="campaign-system-api.mischief" />
+					<set-variable value="#[vars.slowQueryDuration dw::Runtime::wait (vars.slowQueryDuration * 1000)]" doc:name="slowQueryDuration" doc:id="2ca50429-cd38-4c01-aee7-f2f06032e44f" variableName="slowQueryDuration"/>
+					<logger level="DEBUG" doc:name="DEBUG" doc:id="040014fe-9a07-41b3-b4e4-4a1ff9bbad77" message="Slow query completed" category="campaign-system-api.mischief"/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+	</sub-flow>
+	<sub-flow name="checkPeacetime" doc:id="9983f8ed-2124-40a3-9e3c-d640fd9de3a4" >
+		<os:retrieve doc:name="peaceUntil" doc:id="f227b9ca-2ced-48ff-88e8-1cac1eb627cd" key="peaceUntil" target="peaceUntil">
+			<os:default-value><![CDATA[#[(now() - "PT1H") as String]]]></os:default-value>
+		</os:retrieve>
+		<validation:is-true doc:name="peacetime" doc:id="2ea01b8e-150f-4368-99e3-274b586e7d2c" expression="#[vars.peaceUntil &lt; now()]" message="peace time" >
+			<error-mapping targetType="MISCHIEF:NO_MISCHIEF_PEACETIME" />
+		</validation:is-true>
+		<async doc:name="Async" doc:id="25642b02-bbae-4f79-8639-df14316425b4" >
+			<try doc:name="Try" doc:id="04356393-2b73-42e9-a046-09c42f4fb35a">
+			<validation:is-number numberType="FLOAT" doc:name="peacefulMoment" doc:id="1a3de704-ac61-48fc-a55c-280f19ad91fd" value="#[random()]" minValue='#[p("mischief.pPeacefulMoment") as Number]'>
+				<error-mapping sourceType="VALIDATION:INVALID_NUMBER" targetType="MISCHIEF:PEACEFUL_MOMENT" />
+			</validation:is-number>
+			<error-handler>
+				<on-error-continue enableNotifications="true" logException="false" doc:name="On Error Continue" doc:id="dd156d2f-a9e3-4a4e-b41b-f22b3d8ed2f2" type="MISCHIEF:PEACEFUL_MOMENT">
+					<set-variable value='#[import * from dw::Mischief&#10;---&#10;randomDurationWithMean(p("mischief.meanPeaceSeconds") as Number)]' doc:name="peaceDelaySeconds" doc:id="fa32299a-bcd5-4b8b-b024-d8e35c0a5fa7" variableName="peaceDelaySeconds" />
+					<os:store doc:name="peaceUntil" doc:id="855d5e6c-7f27-4f36-9255-afc6fc9e1d24" key="peaceUntil">
+						<os:value><![CDATA[#[import duration from dw::core::Periods
+--- 
+now() + duration({ seconds: vars.peaceDelaySeconds})]]]></os:value>
+					</os:store>
+					<logger level="INFO" doc:name="INFO" doc:id="696f74b3-87fb-40d9-846d-1b3fb93c0f13" message="No mischief for #[vars.peaceDelaySeconds] seconds" category="campaign-system-api.mischief" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		</async>
+	</sub-flow>
+	<flow name="makeTrouble" doc:id="235a4dbe-6f94-4cea-8a73-51e99d7b84b9" >
+		<flow-ref doc:name="checkPeacetime" doc:id="98232643-3664-41fd-8452-50fd27b37fb0" name="checkPeacetime" />
+		<validation:is-number doc:name="unreachableDb" doc:id="e5ffd4a8-7e20-4bdf-bcbe-93643fd6a485" value="#[random()]" numberType="FLOAT" minValue='#[p("mischief.pUnreachableDatabase") as Number]'>
+			<error-mapping sourceType="VALIDATION:INVALID_NUMBER" targetType="MISCHIEF:DB_UNREACHABLE" />
+		</validation:is-number>
+		<flow-ref doc:name="slowQuery" doc:id="0ff4389f-9bf1-431c-baff-2c8627fb10fd" name="slowQuery" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="false" doc:name="On Error Continue" doc:id="50de5d5d-d68d-484b-9b3e-f096304d78f6" type="MISCHIEF:NO_MISCHIEF_PEACETIME">
+				<logger level="DEBUG" doc:name="DEBUG" doc:id="32cc562d-bbcc-4d11-a29a-cfecb6cd71f9" message="no mischief: peacetime until #[vars.peaceUntil]" category="campaign-system-api.mischief"/>
+			</on-error-continue>
+			<on-error-continue enableNotifications="true" logException="false" doc:name="On Error Continue" doc:id="30b8681c-f87f-4447-8db3-df10211f7802" type="MISCHIEF:DB_UNREACHABLE">
+				<raise-error doc:name="DB_UNREACHABLE" doc:id="326f2e25-e1a6-453f-9c45-308c5a3c5900" type="MISCHIEF:DB_UNREACHABLE" description="Database is unreachable (simulation)"/>
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>

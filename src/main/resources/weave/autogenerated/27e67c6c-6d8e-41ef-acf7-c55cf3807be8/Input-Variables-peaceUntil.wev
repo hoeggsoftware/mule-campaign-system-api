@@ -1,0 +1,5 @@
+%dw 2.0
+
+type auto_27e67c6c_6d8e_41ef_acf7_c55cf3807be8_Input_Variables_peaceUntil = {|  |} {"typeAlias": "Serializable",
+"typeId": "java.io.Serializable"}
+
