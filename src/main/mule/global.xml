@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
 	<db:config name="Database_Config" doc:name="Database Config" doc:id="b4aaf95f-6ee4-4076-a161-2659dabf3a6b" >
-		<db:generic-connection url="${db.url}" driverClassName="${db.driver}" user="${db.user}" password="${db.password}"/>
+		<db:generic-connection url="${db.url}" driverClassName="${db.driver}" user="${db.user}" password="${secure::db.password}"/>
 	</db:config>
 	<configuration-properties doc:name="Configuration properties" doc:id="1cac9bc0-0eb7-4634-bfe3-a0091d507b84" file="config.yaml" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="19fb512d-4279-4d4b-acd7-8920e1a12e55" file="config.secure.yaml" key="${encryption.key}" >
+		<secure-properties:encrypt useRandomIVs="true" />
+	</secure-properties:config>
 </mule>
