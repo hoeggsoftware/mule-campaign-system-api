@@ -76,8 +76,8 @@ alignment_id,
 armor_class)
 VALUES (
 :name,
-:class_id,
-:race_id,
+SELECT id FROM classes where name = :class,
+SELECT id FROM races where name = :race,
 :level,
 :strength,
 :dexterity,
@@ -87,12 +87,12 @@ VALUES (
 :charisma,
 :current_health,
 :max_health,
-:alignment_id,
+SELECT id FROM alignments WHERE name = :alignment,
 :armor_class)]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{"name": payload.name,
-"class_id": payload.class_id,
-"race_id": payload.race_id,
 "level": payload.level,
+"class": payload.class,
+"race": payload.race,
 "strength": payload.strength,
 "dexterity": payload.dexterity,
 "constitution": payload.constitution,
@@ -101,7 +101,7 @@ VALUES (
 "charisma": payload.charisma,
 "current_health": payload.current_health,
 "max_health": payload.max_health,
-"alignment_id": payload.alignment_id,
+"alignment": payload.alignment,
 "armor_class":payload.armor_class }]]]></db:input-parameters>
 		</db:insert>
 		<ee:transform doc:name="Transform Message" doc:id="9c74b5fc-e2a6-4396-b137-a654e783feaa" >
@@ -133,8 +133,8 @@ payload]]></ee:set-payload>
 		<db:update doc:name="putCharacter" doc:id="5bff4bbc-2826-45d6-b365-22956ab1d375" config-ref="Database_Config">
 			<db:sql ><![CDATA[UPDATE characters SET 
 name = :name,
-class_id = :class_id,
-race_id = :race_id,
+class_id = SELECT id FROM classes WHERE name = :class,
+race_id = SELECT id FROM races WHERE name = :race,
 level = :level,
 strength = :strength,
 dexterity = :dexterity,
@@ -144,13 +144,13 @@ intelligence = :intelligence,
 charisma = :charisma,
 current_health = :current_health,
 max_health = :max_health,
-alignment_id = :alignment_id,
+alignment_id = SELECT id FROM alignments WHERE name = :alignment,
 armor_class = :armor_class
 WHERE id = :id]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{"name": payload.name,
 "id": attributes.uriParams.id,
-"class_id": payload.class_id,
-"race_id": payload.race_id,
+"class": payload.class,
+"race": payload.race,
 "level": payload.level,
 "strength": payload.strength,
 "dexterity": payload.dexterity,
@@ -160,7 +160,7 @@ WHERE id = :id]]></db:sql>
 "charisma": payload.charisma,
 "current_health": payload.current_health,
 "max_health": payload.max_health,
-"alignment_id": payload.alignment_id,
+"alignment": payload.alignment,
 "armor_class":payload.armor_class }]]]></db:input-parameters>
 		</db:update>
 		<ee:transform doc:name="Transform Message" doc:id="6343737d-f7c1-4638-949d-f346097f44ed" >

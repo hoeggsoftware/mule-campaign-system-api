@@ -3,7 +3,7 @@
     <http:listener-config name="campaign-system-api-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="8081" />
     </http:listener-config>
-    <apikit:config name="campaign-system-api-config" api="resource::e9cbd57b-c837-47ec-92be-da9a4aa996dc:campaign-system-api:1.1.1:raml:zip:campaign-system-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <apikit:config name="campaign-system-api-config" api="resource::e9cbd57b-c837-47ec-92be-da9a4aa996dc:campaign-system-api:1.1.2:raml:zip:campaign-system-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <flow name="campaign-system-api-main">
         <http:listener config-ref="campaign-system-api-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -15,8 +15,8 @@
             </http:error-response>
         </http:listener>
         <flow-ref doc:name="makeTrouble" doc:id="56a9d86c-150d-4662-8b10-7c4edf3e6ffb" name="makeTrouble" />
-		<apikit:router config-ref="campaign-system-api-config" />
-		<error-handler>
+        <apikit:router config-ref="campaign-system-api-config" />
+        <error-handler>
             <on-error-propagate type="APIKIT:BAD_REQUEST">
                 <ee:transform>
                     <ee:message>
@@ -176,6 +176,6 @@ output application/json
         <flow-ref doc:name="postGameMaster" doc:id="bf504bac-061c-4260-ad8a-8dbb7ab81c6e" name="postGameMaster" />
     </flow>
     <flow name="post:\character\(id)\inventory\log:application\json:campaign-system-api-config">
-		<flow-ref doc:name="postCharacterInventoryEvent" doc:id="94c39801-645e-4fe9-a1fc-1e68a89ef236" name="postCharacterInventoryEvent"/>
+        <flow-ref doc:name="postCharacterInventoryEvent" doc:id="94c39801-645e-4fe9-a1fc-1e68a89ef236" name="postCharacterInventoryEvent" />
     </flow>
 </mule>

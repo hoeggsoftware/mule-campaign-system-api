@@ -50,22 +50,9 @@
 			<classifier>mule-plugin</classifier>
 		</dependency>
 		<dependency>
-			<groupId>org.mule.connectors</groupId>
-			<artifactId>mule-db-connector</artifactId>
-			<version>1.13.4</version>
-			<classifier>mule-plugin</classifier>
-		</dependency>
-		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>42.4.0</version>
-		</dependency>
-		<dependency>
-			<groupId>e9cbd57b-c837-47ec-92be-da9a4aa996dc</groupId>
-			<artifactId>campaign-system-api</artifactId>
-			<version>1.1.1</version>
-			<classifier>raml</classifier>
-			<type>zip</type>
 		</dependency>
 		<dependency>
 			<groupId>org.mule.modules</groupId>
@@ -95,6 +82,19 @@
 			<groupId>com.mulesoft.modules</groupId>
 			<artifactId>mule-secure-configuration-property-module</artifactId>
 			<version>1.2.3</version>
+			<classifier>mule-plugin</classifier>
+		</dependency>
+		<dependency>
+			<groupId>e9cbd57b-c837-47ec-92be-da9a4aa996dc</groupId>
+			<artifactId>campaign-system-api</artifactId>
+			<version>1.1.2</version>
+			<classifier>raml</classifier>
+			<type>zip</type>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.connectors</groupId>
+			<artifactId>mule-db-connector</artifactId>
+			<version>1.13.5</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 	</dependencies>
