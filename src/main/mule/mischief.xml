@@ -20,6 +20,21 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 			</error-handler>
 		</try>
 	</sub-flow>
+	<sub-flow name="dbPasswordExp" doc:id="af86d0a1-7b15-4380-9672-fabaeb9457b7" >
+		<try doc:name="Try" doc:id="fece61a6-a13f-465b-ae07-d06bfef43b35" >
+			<validation:is-number doc:name="Is number" doc:id="02e0d2dd-8901-4e24-a290-550938017355" value="#[random()]" minValue='#[p("mischief.pDatabasePasswordExpired") as Number]' numberType="FLOAT">
+				<error-mapping sourceType="VALIDATION:INVALID_NUMBER" targetType="MISCHIEF:DB_PASSWORD_EXPIRED" />
+			</validation:is-number>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4bbd2183-e24f-4c7c-b3b7-63fad3f1bcfd" >
+					<set-variable value='#[import * from dw::Mischief&#10;---&#10;randomDurationWithMean(p("mischief.meanPasswordResetDelaySeconds") as Number)]' doc:name="passwordResetDelay" doc:id="babefb01-152e-4c10-8102-5cf0d0074e25" variableName="passwordResetDelay"/>
+					<logger level="DEBUG" doc:name="DEBUG" doc:id="05b237d1-aadf-4d76-b431-b6fd0f9ed751" message="Password Reset Started (simulated #[vars.passwordResetDelay]s)" category="campaign-system-api.mischief"/>
+					<set-variable value="#[vars.passwordResetDelay dw::Runtime::wait (vars.passwordResetDelay * 1000)]" doc:name="passwordResetDelay" doc:id="11e86dce-8443-42ff-9288-02e881cc90d3" variableName="passwordResetDelay"/>
+					<logger level="DEBUG" doc:name="DEBUG" doc:id="4d0ea79d-b683-40b8-ac75-98f436eeda57" message="Password reset completed" category="campaign-system-api.mischief"/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+	</sub-flow>
 	<sub-flow name="checkPeacetime" doc:id="9983f8ed-2124-40a3-9e3c-d640fd9de3a4" >
 		<os:retrieve doc:name="peaceUntil" doc:id="f227b9ca-2ced-48ff-88e8-1cac1eb627cd" key="peaceUntil" target="peaceUntil">
 			<os:default-value><![CDATA[#[(now() - "PT1H") as String]]]></os:default-value>
@@ -52,6 +67,7 @@ now() + duration({ seconds: vars.peaceDelaySeconds})]]]></os:value>
 			<error-mapping sourceType="VALIDATION:INVALID_NUMBER" targetType="MISCHIEF:DB_UNREACHABLE" />
 		</validation:is-number>
 		<flow-ref doc:name="slowQuery" doc:id="0ff4389f-9bf1-431c-baff-2c8627fb10fd" name="slowQuery" />
+		<flow-ref doc:name="dbPasswordExp" doc:id="f1ff950d-2f35-4ea7-a673-e9bab4108879" name="dbPasswordExp"/>
 		<error-handler >
 			<on-error-continue enableNotifications="true" logException="false" doc:name="On Error Continue" doc:id="50de5d5d-d68d-484b-9b3e-f096304d78f6" type="MISCHIEF:NO_MISCHIEF_PEACETIME">
 				<logger level="DEBUG" doc:name="DEBUG" doc:id="32cc562d-bbcc-4d11-a29a-cfecb6cd71f9" message="no mischief: peacetime until #[vars.peaceUntil]" category="campaign-system-api.mischief"/>

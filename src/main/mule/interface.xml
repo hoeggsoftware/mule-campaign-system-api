@@ -137,7 +137,7 @@ output application/json
         <flow-ref doc:name="getAlignments" doc:id="787a6b56-bdd1-4750-a088-05601de2354a" name="getAlignments" />
     </flow>
     <flow name="post:\character:application\json:campaign-system-api-config">
-        <flow-ref doc:name="postCharacter" doc:id="c3efb08a-e3a7-4e5e-b886-d8648d5302dc" name="postCharacter" />
+		<flow-ref doc:name="postCharacter" doc:id="c3efb08a-e3a7-4e5e-b886-d8648d5302dc" name="postCharacter" />
     </flow>
     <flow name="get:\character\(id):campaign-system-api-config">
         <flow-ref doc:name="getCharacterByID" doc:id="91c0d14d-a4b8-4b3f-992c-542df39ca48f" name="getCharacterByID" />
