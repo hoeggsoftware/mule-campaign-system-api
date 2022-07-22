@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
-http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<sub-flow name="slowQuery" doc:id="27e67c6c-6d8e-41ef-acf7-c55cf3807be8" >
 		<try doc:name="Try" doc:id="a4b3cfeb-bbe4-474e-b551-6af7d86fd35c" >
 			<validation:is-number doc:name="slowQuery" doc:id="f90165b7-2373-48c5-a139-bf6f9c4b91bc" value="#[random()]" minValue='#[p("mischief.pSlowQuery") as Number]' numberType="FLOAT">
@@ -21,19 +22,30 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 		</try>
 	</sub-flow>
 	<sub-flow name="dbPasswordExp" doc:id="af86d0a1-7b15-4380-9672-fabaeb9457b7" >
-		<try doc:name="Try" doc:id="fece61a6-a13f-465b-ae07-d06bfef43b35" >
+		<os:retrieve doc:name="expiredUntil" doc:id="1ad990dc-c93a-4b0a-8b32-2316fd58a534" key="expiredUntil" target="expiredUntil">
+			<os:default-value ><![CDATA[#[(now() - "PT1H") as String]]]></os:default-value>
+		</os:retrieve>
+		<validation:is-true doc:name="pwExpired" doc:id="56400d6f-5fd5-4037-9bf8-fecfb7a17d25" expression="#[vars.expiredUntil &lt; now()]" message="database password expired">
+			<error-mapping targetType="MISCHIEF:DB_PASSWORD_EXPIRED" />
+		</validation:is-true>
+		<async doc:name="Async" doc:id="240ff0a8-f3d2-42de-9ec0-90dc9c440050" >
+			<try doc:name="Try" doc:id="fece61a6-a13f-465b-ae07-d06bfef43b35">
 			<validation:is-number doc:name="Is number" doc:id="02e0d2dd-8901-4e24-a290-550938017355" value="#[random()]" minValue='#[p("mischief.pDatabasePasswordExpired") as Number]' numberType="FLOAT">
-				<error-mapping sourceType="VALIDATION:INVALID_NUMBER" targetType="MISCHIEF:DB_PASSWORD_EXPIRED" />
+				<error-mapping sourceType="VALIDATION:INVALID_NUMBER" targetType="MISCHIEF:DB_PASSWORD_RESET" />
 			</validation:is-number>
-			<error-handler >
-				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4bbd2183-e24f-4c7c-b3b7-63fad3f1bcfd" >
-					<set-variable value='#[import * from dw::Mischief&#10;---&#10;randomDurationWithMean(p("mischief.meanPasswordResetDelaySeconds") as Number)]' doc:name="passwordResetDelay" doc:id="babefb01-152e-4c10-8102-5cf0d0074e25" variableName="passwordResetDelay"/>
-					<logger level="DEBUG" doc:name="DEBUG" doc:id="05b237d1-aadf-4d76-b431-b6fd0f9ed751" message="Password Reset Started (simulated #[vars.passwordResetDelay]s)" category="campaign-system-api.mischief"/>
-					<set-variable value="#[vars.passwordResetDelay dw::Runtime::wait (vars.passwordResetDelay * 1000)]" doc:name="passwordResetDelay" doc:id="11e86dce-8443-42ff-9288-02e881cc90d3" variableName="passwordResetDelay"/>
-					<logger level="DEBUG" doc:name="DEBUG" doc:id="4d0ea79d-b683-40b8-ac75-98f436eeda57" message="Password reset completed" category="campaign-system-api.mischief"/>
+			<error-handler>
+				<on-error-continue enableNotifications="true" logException="false" doc:name="On Error Continue" doc:id="ce367877-bf84-4225-b684-b068ea559144" type="MISCHIEF:DB_PASSWORD_RESET">
+					<set-variable value='#[import * from dw::Mischief&#10;---&#10;randomDurationWithMean(p("mischief.meanPasswordResetDelaySeconds") as Number)]' doc:name="passwordResetDelay" doc:id="babefb01-152e-4c10-8102-5cf0d0074e25" variableName="passwordResetDelay" />
+					<os:store doc:name="Store" doc:id="0513a55b-1ab8-4a85-9eb4-df07ccff31e1" key="expiredUntil">
+							<os:value ><![CDATA[#[import duration from dw::core::Periods
+--- 
+now() + duration({ seconds: vars.passwordResetDelay})]]]></os:value>
+						</os:store>
+						<logger level="INFO" doc:name="INFO" doc:id="05b237d1-aadf-4d76-b431-b6fd0f9ed751" message="Password Reset Started (simulated #[vars.passwordResetDelay]s)" category="campaign-system-api.mischief" />
 				</on-error-continue>
 			</error-handler>
 		</try>
+		</async>
 	</sub-flow>
 	<sub-flow name="checkPeacetime" doc:id="9983f8ed-2124-40a3-9e3c-d640fd9de3a4" >
 		<os:retrieve doc:name="peaceUntil" doc:id="f227b9ca-2ced-48ff-88e8-1cac1eb627cd" key="peaceUntil" target="peaceUntil">
@@ -74,6 +86,20 @@ now() + duration({ seconds: vars.peaceDelaySeconds})]]]></os:value>
 			</on-error-continue>
 			<on-error-continue enableNotifications="true" logException="false" doc:name="On Error Continue" doc:id="30b8681c-f87f-4447-8db3-df10211f7802" type="MISCHIEF:DB_UNREACHABLE">
 				<raise-error doc:name="DB_UNREACHABLE" doc:id="326f2e25-e1a6-453f-9c45-308c5a3c5900" type="MISCHIEF:DB_UNREACHABLE" description="Database is unreachable (simulation)"/>
+			</on-error-continue>
+			<on-error-continue enableNotifications="true" logException="false" doc:name="On Error Continue" doc:id="ea0b31c8-41bc-42f0-a9c3-40199d29a272" type="MISCHIEF:DB_PASSWORD_EXPIRED">
+				<ee:transform doc:name="Transform Message" doc:id="ef141341-6591-4089-bcfc-cafb7e0c5cb7">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Service Unavailable"}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="httpStatus"><![CDATA[503]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<raise-error doc:name="DB_PASSWORD_EXPIRED" doc:id="bbd48e67-a045-4658-a5a1-23113f97c128" type="MULE:SECURITY" />
 			</on-error-continue>
 		</error-handler>
 	</flow>

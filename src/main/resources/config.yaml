@@ -10,6 +10,6 @@ mischief:
   pSlowQuery: "0.06"
   meanSlowQuerySeconds: "16"
   # TODO
-  pDatabasePasswordExpired: "0.0025"
+  pDatabasePasswordExpired: "0.1"
   meanPasswordResetDelaySeconds: "120"
   
